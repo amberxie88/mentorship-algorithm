@@ -1,4 +1,5 @@
 from utils import parse_preferences, parse_num_mentees
+import csv
 
 def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv):
 	# Assume the total number of mentees matches up this
@@ -6,7 +7,7 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv)
 
 	# Mentors and mentees rank their top 3 preferences
 	# Assume that every mentor or mentee is part of someone's top 3
-	TOP_X = 3
+	TOP_X = 4
 	mentor_preferences = parse_preferences(mentor_preferences_csv)
 	mentee_preferences = parse_preferences(mentee_preferences_csv)
 
@@ -75,15 +76,29 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 					if (len(mentees_to_keep) == desired_num_mentees):
 						break
 
-				# Mentees that didn't make the cut will propose again
+				add_back = desired_num_mentees - len(mentees_to_keep)
 				for extra_mentee in proposed_mentees.difference(mentees_to_keep):
-					rejected_mentees.add(extra_mentee)
+					if (add_back > 0):
+						# Add back some mentees semi-randomly
+						mentees_to_keep.add(extra_mentee)
+						add_back -= 1
+					else:
+						# Mentees that didn't make the cut will propose again
+						rejected_mentees.add(extra_mentee)
 				mentor_mentee_list[mentor] = mentees_to_keep
 
 	return mentor_mentee_list, lingering_mentees
 
 def report_results(mentors, mentor_mentee_list, lingering_mentees):
+	#for mentor in mentors:
+	#	print("Mentor: ", mentor, "\tMentees: ", mentor_mentee_list[mentor])
+	#print("Lingering mentees: ", lingering_mentees)
+
 	for mentor in mentors:
-		print("Mentor: ", mentor, "\tMentees: ", mentor_mentee_list[mentor])
+		print(mentor,end=',')
+		for mentee in mentor_mentee_list[mentor]:
+			print(mentee, end=',')
+		print()
 	print("Lingering mentees: ", lingering_mentees)
+
 
