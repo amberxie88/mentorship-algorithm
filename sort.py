@@ -7,14 +7,13 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv)
 
 	# Mentors and mentees rank their top 3 preferences
 	# Assume that every mentor or mentee is part of someone's top 3
-	TOP_X = 4
 	mentor_preferences = parse_preferences(mentor_preferences_csv)
 	mentee_preferences = parse_preferences(mentee_preferences_csv)
 
-	mentor_mentee_list, lingering_mentees = run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor)
+	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
 	report_results(mentor_preferences.keys(), mentor_mentee_list, lingering_mentees)
 
-def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor):
+def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 
 	# Some useful information
 	mentors = mentor_preferences.keys()
@@ -22,7 +21,6 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 
 	num_mentors = len(mentors)
 	num_mentees = len(mentees)
-
 
 	# Useful data structures for sorting algorithm
 	mentee_proposal_index = {}
@@ -48,8 +46,7 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 		for mentee in rejected_mentees:
 			# Find next mentor to propose to
 			proposal_index = mentee_proposal_index[mentee]
-
-			if (proposal_index >= TOP_X):
+			if (proposal_index >= len(mentee_preferences[mentee])):
 				lingering_mentees.add(mentee)
 			else:
 				# Propose to said mentor

@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 def parse_preferences(csv_path):
 	""" 
 	Takes in path to csv file
@@ -13,7 +12,7 @@ def parse_preferences(csv_path):
 	for i in range(len(df)):
 		mentees = []
 		for j in range(1, len(df.columns)):
-			if (not pd.isnull(df.iloc[i][j])):
+			if ((not pd.isnull(df.iloc[i][j])) & (df.iloc[i][j] not in mentees)):	# no duplicates
 				mentees.append(df.iloc[i][j])
 		mentor_preferences[df.iloc[i][0]] = mentees
 	return mentor_preferences
