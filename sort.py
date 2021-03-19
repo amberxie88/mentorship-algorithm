@@ -22,7 +22,6 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 	num_mentors = len(mentors)
 	num_mentees = len(mentees)
 
-
 	# Useful data structures for sorting algorithm
 	mentee_proposal_index = {}
 	for mentee in mentees:
@@ -47,8 +46,7 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 		for mentee in rejected_mentees:
 			# Find next mentor to propose to
 			proposal_index = mentee_proposal_index[mentee]
-
-			if (proposal_index >= num_mentors):
+			if (proposal_index >= len(mentee_preferences[mentee])):
 				lingering_mentees.add(mentee)
 			else:
 				# Propose to said mentor
