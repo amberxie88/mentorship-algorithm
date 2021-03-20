@@ -1,4 +1,4 @@
-from utils import parse_preferences, parse_num_mentees
+from utils import parse_preferences, parse_num_mentees, check_mentors_mentees
 import csv
 
 def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv):
@@ -9,8 +9,10 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv)
 	# Assume that every mentor or mentee is part of someone's top 3
 	mentor_preferences = parse_preferences(mentor_preferences_csv)
 	mentee_preferences = parse_preferences(mentee_preferences_csv)
+	check_mentors_mentees(mentor_preferences, mentee_preferences)
 
 	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
+  
 	report_results(mentor_preferences.keys(), mentor_mentee_list, lingering_mentees)
 
 def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):

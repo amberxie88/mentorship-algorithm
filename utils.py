@@ -25,3 +25,28 @@ def parse_num_mentees(csv_path):
 	for i in range(len(df)):
 		mentees_per_mentor[df.iloc[i][0]] = df.iloc[i][1]
 	return mentees_per_mentor
+
+def check_mentors_mentees(mentor_preferences, mentee_preferences):
+	mentors = list(mentor_preferences.keys())
+	mentees_in_mentor_preferences = list(mentor_preferences.values())
+	#flattening the mentees_in_mentor_preferences into one list, not  a list of lists
+	mentees_to_check = []
+	for sublist in mentees_in_mentor_preferences:
+		for item in sublist:
+			mentees_to_check.append(item)
+
+
+	mentees = list(mentee_preferences.keys())
+	mentors_in_mentee_preferences = list(mentee_preferences.values())
+	#flattening the mentorss_in_mentee_preferences into one list, not  a list of lists
+	mentors_to_check = []
+	for sublist in mentors_in_mentee_preferences:
+		for item in sublist:
+			mentors_to_check.append(item)
+
+	print("mentors to check", mentors_to_check)
+
+	for mentee in mentees_to_check:
+		assert mentee in mentees, "Mentee" + mentee + " is not a mentee"
+	for mentor in mentors_to_check:
+		assert mentor in mentors, "Mentor" + mentor + " is not a mentor" 
