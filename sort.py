@@ -93,11 +93,18 @@ def report_results(mentors, mentor_mentee_list, lingering_mentees):
 	#	print("Mentor: ", mentor, "\tMentees: ", mentor_mentee_list[mentor])
 	#print("Lingering mentees: ", lingering_mentees)
 
+	results = []
 	for mentor in mentors:
 		print(mentor,end=',')
+		result = [mentor]
 		for mentee in mentor_mentee_list[mentor]:
 			print(mentee, end=',')
+			result += [mentee]
 		print()
+		results.append(result)
 	print("Lingering mentees: ", lingering_mentees)
 
-
+	with open('sp2021_anon/results.csv', 'w') as file:
+		writer = csv.writer(file)
+		writer.writerow(["Mentor", "Mentee 1", "Mentee 2", "Mentee 3"])
+		writer.writerows(results)

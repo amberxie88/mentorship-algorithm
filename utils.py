@@ -44,7 +44,7 @@ def check_mentors_mentees(mentor_preferences, mentee_preferences):
 		for item in sublist:
 			mentors_to_check.append(item)
 
-	print("mentors to check", mentors_to_check)
+	#print("mentors to check", mentors_to_check)
 
 	for mentee in mentees_to_check:
 		assert mentee in mentees, "Mentee" + mentee + " is not a mentee"
