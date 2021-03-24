@@ -13,7 +13,7 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv)
 
 	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
   
-	report_results(mentor_preferences.keys(), mentor_mentee_list, lingering_mentees)
+	report_results(mentor_mentee_list, lingering_mentees)
 
 def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 
@@ -88,16 +88,19 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 
 	return mentor_mentee_list, lingering_mentees
 
-def report_results(mentors, mentor_mentee_list, lingering_mentees):
-	#for mentor in mentors:
-	#	print("Mentor: ", mentor, "\tMentees: ", mentor_mentee_list[mentor])
-	#print("Lingering mentees: ", lingering_mentees)
+def report_results(mentor_mentee_list, lingering_mentees):
+	results = []
+	for mentor in mentor_mentee_list:
+		result = [mentor]
+		result.extend(mentor_mentee_list[mentor])
+		results.append(result)
 
-	for mentor in mentors:
-		print(mentor,end=',')
-		for mentee in mentor_mentee_list[mentor]:
-			print(mentee, end=',')
-		print()
-	print("Lingering mentees: ", lingering_mentees)
+	with open('sp2021_anon/results.csv', 'w') as file:
+		writer = csv.writer(file)
+		writer.writerow(["Mentor", "Mentee 1", "Mentee 2", "Mentee 3"])
+		writer.writerows(results)
 
-
+	with open('sp2021_anon/lingering.csv', 'w') as file:
+		writer = csv.writer(file)
+		writer.writerow(["Lingering Mentees"])
+		writer.writerows(zip(lingering_mentees))
