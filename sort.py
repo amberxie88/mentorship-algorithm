@@ -1,7 +1,7 @@
 from utils import parse_preferences, parse_num_mentees
 import csv
 
-def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv):
+def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv, mentee_do_not_csv):
 	# Assume the total number of mentees matches up this
 	mentees_per_mentor = parse_num_mentees(mentees_per_mentor_csv)
 
@@ -11,10 +11,12 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv)
 	mentor_preferences = parse_preferences(mentor_preferences_csv)
 	mentee_preferences = parse_preferences(mentee_preferences_csv)
 
-	mentor_mentee_list, lingering_mentees = run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor)
+	mentee_do_nots = parse_mentee_do_nots(mentee_do_not_csv)
+
+	mentor_mentee_list, lingering_mentees = run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots)
 	report_results(mentor_preferences.keys(), mentor_mentee_list, lingering_mentees)
 
-def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor):
+def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots):
 
 	# Some useful information
 	mentors = mentor_preferences.keys()
@@ -48,14 +50,21 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 		for mentee in rejected_mentees:
 			# Find next mentor to propose to
 			proposal_index = mentee_proposal_index[mentee]
-
 			if (proposal_index >= TOP_X):
 				lingering_mentees.add(mentee)
 			else:
 				# Propose to said mentor
 				mentor_to_propose_to = mentee_preferences[mentee][proposal_index]
-				mentor_mentee_list[mentor_to_propose_to].add(mentee)
-				mentee_proposal_index[mentee] += 1
+				found = False
+				for do_not_pair in mentee_do_nots[mentor_to_propose_to] {
+					if (mentee == do_not_pair) {
+						found = True;
+					}
+				}
+				if (!found) {
+					mentor_mentee_list[mentor_to_propose_to].add(mentee)
+					mentee_proposal_index[mentee] += 1
+				}
 
 		# No more rejected mentees, so reset
 		rejected_mentees = set()
