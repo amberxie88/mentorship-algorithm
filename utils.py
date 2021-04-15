@@ -1,52 +1,70 @@
 import pandas as pd
 
 def parse_preferences(csv_path):
-	""" 
-	Takes in path to csv file
-	Returns dictionary of mentor / mentee to their preferences
-	"""	
-	df = pd.read_csv(csv_path, sep=',')
+    """ 
+    Takes in path to csv file
+    Returns dictionary of mentor / mentee to their preferences
+    """	
+    df = pd.read_csv(csv_path, sep=',')
 
-	mentor_preferences = {}
+    mentor_preferences = {}
 
-	for i in range(len(df)):
-		mentees = []
-		for j in range(1, len(df.columns)):
-			if ((not pd.isnull(df.iloc[i][j])) & (df.iloc[i][j] not in mentees)):	# no duplicates
-				mentees.append(df.iloc[i][j])
-		mentor_preferences[df.iloc[i][0]] = mentees
-	return mentor_preferences
+    for i in range(len(df)):
+        mentees = []
+        for j in range(1, len(df.columns)):
+            if ((not pd.isnull(df.iloc[i][j])) & (df.iloc[i][j] not in mentees)):	# no duplicates
+                mentees.append(df.iloc[i][j])
+        mentor_preferences[df.iloc[i][0]] = mentees
+    return mentor_preferences
 
 def parse_num_mentees(csv_path):
-	df = pd.read_csv(csv_path, sep=',')
+    df = pd.read_csv(csv_path, sep=',')
 
-	mentees_per_mentor = {}
+    mentees_per_mentor = {}
 
-	for i in range(len(df)):
-		mentees_per_mentor[df.iloc[i][0]] = df.iloc[i][1]
-	return mentees_per_mentor
+    for i in range(len(df)):
+        mentees_per_mentor[df.iloc[i][0]] = df.iloc[i][1]
+    return mentees_per_mentor
 
 def check_mentors_mentees(mentor_preferences, mentee_preferences):
-	mentors = list(mentor_preferences.keys())
-	mentees_in_mentor_preferences = list(mentor_preferences.values())
-	#flattening the mentees_in_mentor_preferences into one list, not  a list of lists
-	mentees_to_check = []
-	for sublist in mentees_in_mentor_preferences:
-		for item in sublist:
-			mentees_to_check.append(item)
+    mentors = list(mentor_preferences.keys())
+    mentees_in_mentor_preferences = list(mentor_preferences.values())
+    #flattening the mentees_in_mentor_preferences into one list, not  a list of lists
+    mentees_to_check = []
+    for sublist in mentees_in_mentor_preferences:
+        for item in sublist:
+            mentees_to_check.append(item)
 
 
-	mentees = list(mentee_preferences.keys())
-	mentors_in_mentee_preferences = list(mentee_preferences.values())
-	#flattening the mentorss_in_mentee_preferences into one list, not  a list of lists
-	mentors_to_check = []
-	for sublist in mentors_in_mentee_preferences:
-		for item in sublist:
-			mentors_to_check.append(item)
+    mentees = list(mentee_preferences.keys())
+    mentors_in_mentee_preferences = list(mentee_preferences.values())
+    #flattening the mentorss_in_mentee_preferences into one list, not  a list of lists
+    mentors_to_check = []
+    for sublist in mentors_in_mentee_preferences:
+        for item in sublist:
+            mentors_to_check.append(item)
 
-	#print("mentors to check", mentors_to_check)
+    #print("mentors to check", mentors_to_check)
 
-	for mentee in mentees_to_check:
-		assert mentee in mentees, "Mentee" + mentee + " is not a mentee"
-	for mentor in mentors_to_check:
-		assert mentor in mentors, "Mentor" + mentor + " is not a mentor" 
+    for mentee in mentees_to_check:
+        assert mentee in mentees, "Mentee" + mentee + " is not a mentee"
+    for mentor in mentors_to_check:
+        assert mentor in mentors, "Mentor" + mentor + " is not a mentor" 
+
+#matches emails and grade levels to each mentor/mentee
+def parse_emails(csv_path):
+    df = pd.read_csv(csv_path, sep=',')
+    contacts = {}
+    for i in range(1, len(df)):
+        info = []
+        for j in range(1, len(df.columns)):
+            info.append(df.iloc[i][j])
+        contacts[df.iloc[i][0]] = info
+    return contacts
+
+#makes sure mentees are in a lower grade than their mentors
+def check_grade(mentor_mentee_list, mentor_info, mentee_info):
+    for mentor in mentor_mentee_list:
+        for mentee in mentor:
+            assert mentor_info[mentor][1] > mentee_info[mentee][1], "Mentor" + mentor + " is not older than " + mentee
+                
