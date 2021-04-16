@@ -1,4 +1,4 @@
-from utils import parse_preferences, parse_num_mentees
+from utils import parse_preferences, parse_num_mentees, check_mentors_mentees
 import csv
 
 def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv, mentee_do_not_csv):
@@ -7,16 +7,17 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv,
 
 	# Mentors and mentees rank their top 3 preferences
 	# Assume that every mentor or mentee is part of someone's top 3
-	TOP_X = 4
 	mentor_preferences = parse_preferences(mentor_preferences_csv)
 	mentee_preferences = parse_preferences(mentee_preferences_csv)
+	check_mentors_mentees(mentor_preferences, mentee_preferences)
 
 	mentee_do_nots = parse_preferences(mentee_do_not_csv)
 
-	mentor_mentee_list, lingering_mentees = run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots)
-	report_results(mentor_preferences.keys(), mentor_mentee_list, lingering_mentees)
+	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
+  
+	report_results(mentor_mentee_list, lingering_mentees)
 
-def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots):
+def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 
 	# Some useful information
 	mentors = mentor_preferences.keys()
@@ -24,7 +25,6 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 
 	num_mentors = len(mentors)
 	num_mentees = len(mentees)
-
 
 	# Useful data structures for sorting algorithm
 	mentee_proposal_index = {}
@@ -50,7 +50,7 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 		for mentee in rejected_mentees:
 			# Find next mentor to propose to
 			proposal_index = mentee_proposal_index[mentee]
-			if (proposal_index >= TOP_X):
+			if (proposal_index >= len(mentee_preferences[mentee])):
 				lingering_mentees.add(mentee)
 			else:
 				# Propose to said mentor
@@ -95,16 +95,19 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 
 	return mentor_mentee_list, lingering_mentees
 
-def report_results(mentors, mentor_mentee_list, lingering_mentees):
-	#for mentor in mentors:
-	#	print("Mentor: ", mentor, "\tMentees: ", mentor_mentee_list[mentor])
-	#print("Lingering mentees: ", lingering_mentees)
+def report_results(mentor_mentee_list, lingering_mentees):
+	results = []
+	for mentor in mentor_mentee_list:
+		result = [mentor]
+		result.extend(mentor_mentee_list[mentor])
+		results.append(result)
 
-	for mentor in mentors:
-		print(mentor,end=',')
-		for mentee in mentor_mentee_list[mentor]:
-			print(mentee, end=',')
-		print()
-	print("Lingering mentees: ", lingering_mentees)
+	with open('sp2021_anon/results.csv', 'w') as file:
+		writer = csv.writer(file)
+		writer.writerow(["Mentor", "Mentee 1", "Mentee 2", "Mentee 3"])
+		writer.writerows(results)
 
-
+	with open('sp2021_anon/lingering.csv', 'w') as file:
+		writer = csv.writer(file)
+		writer.writerow(["Lingering Mentees"])
+		writer.writerows(zip(lingering_mentees))
