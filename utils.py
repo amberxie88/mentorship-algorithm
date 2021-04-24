@@ -25,7 +25,6 @@ def parse_num_mentees(csv_path):
 	for i in range(len(df)):
 		mentees_per_mentor[df.iloc[i][0]] = df.iloc[i][1]
 	return mentees_per_mentor
-
 def check_mentors_mentees(mentor_preferences, mentee_preferences):
 	mentors = list(mentor_preferences.keys())
 	mentees_in_mentor_preferences = list(mentor_preferences.values())
