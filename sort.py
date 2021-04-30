@@ -13,11 +13,11 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv,
 
 	mentee_do_nots = parse_preferences(mentee_do_not_csv)
 
-	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
+	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots)
   
 	report_results(mentor_mentee_list, lingering_mentees)
 
-def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
+def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots):
 
 	# Some useful information
 	mentors = mentor_preferences.keys()
@@ -56,10 +56,11 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 				# Propose to said mentor
 				mentor_to_propose_to = mentee_preferences[mentee][proposal_index]
 				found = False
-				for do_not_pair in mentee_do_nots[mentor_to_propose_to]:
-					if (mentee == do_not_pair):
-						found = True
-				if (!found):
+				if mentor_to_propose_to in mentee_do_nots:
+					for do_not_pair in mentee_do_nots[mentor_to_propose_to]:
+						if (mentee == do_not_pair):
+							found = True
+				if (not found):
 					mentor_mentee_list[mentor_to_propose_to].add(mentee)
 					mentee_proposal_index[mentee] += 1
 
