@@ -1,7 +1,10 @@
-from utils import parse_preferences, parse_num_mentees, check_mentors_mentees
+from utils import parse_preferences, parse_num_mentees, check_mentors_mentees, parse_attributes
 import csv
 
 def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv):
+	#NEW
+	#info = parse_attributes(info_csv)
+
 	# Assume the total number of mentees matches up this
 	mentees_per_mentor = parse_num_mentees(mentees_per_mentor_csv)
 
@@ -14,6 +17,7 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv)
 	check_mentors_mentees(mentor_preferences, mentee_preferences)
 
 	mentor_mentee_list, lingering_mentees = run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor)
+	mentor_mentee_list = pair_lingering_mentees(mentor_mentee_list, lingering_mentees, mentees_per_mentor_csv)
 	report_results(mentor_preferences.keys(), mentor_mentee_list, lingering_mentees)
 
 def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_mentor):
@@ -24,6 +28,7 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 
 	num_mentors = len(mentors)
 	num_mentees = len(mentees)
+
 
 
 	# Useful data structures for sorting algorithm
@@ -56,6 +61,7 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 			else:
 				# Propose to said mentor
 				mentor_to_propose_to = mentee_preferences[mentee][proposal_index]
+
 				mentor_mentee_list[mentor_to_propose_to].add(mentee)
 				mentee_proposal_index[mentee] += 1
 
@@ -88,8 +94,20 @@ def run_sort_alg(TOP_X, mentor_preferences, mentee_preferences, mentees_per_ment
 						# Mentees that didn't make the cut will propose again
 						rejected_mentees.add(extra_mentee)
 				mentor_mentee_list[mentor] = mentees_to_keep
+		print("Mentor mentee list")
+		print(mentor_mentee_list)
+		print("mentees per mentor")
+		print(mentees_per_mentor)
 
 	return mentor_mentee_list, lingering_mentees
+
+def pair_lingering_mentees(mentor_mentee_list, lingering_mentees, mentees_per_mentor_csv):
+	mentees_per_mentor = parse_num_mentees(mentees_per_mentor_csv)
+	while (len(lingering_mentees) > 0):
+		for m in mentees_per_mentor:
+			while (mentees_per_mentor[m] <= len(mentor_mentee_list[m])):
+					mentor_mentee_list[m].append(lingering_mentees.pop(0))
+	return mentor_mentee_list
 
 def report_results(mentors, mentor_mentee_list, lingering_mentees):
 	#for mentor in mentors:
