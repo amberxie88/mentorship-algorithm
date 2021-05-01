@@ -1,13 +1,9 @@
-from utils import parse_preferences, parse_num_mentees, check_mentors_mentees, parse_emails, check_grade
+from utils import parse_preferences, parse_num_mentees, check_mentors_mentees, parse_emails, check_grade, check_matching_email
 import csv
 
-def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv, mentors_email, mentees_email):
+def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv, mentors_email=None, mentees_email=None):
     # Assume the total number of mentees matches up this
     mentees_per_mentor = parse_num_mentees(mentees_per_mentor_csv)
-
-    #creates lists of email/grade levels
-    mentor_info = parse_emails(mentors_email)
-    mentee_info = parse_emails(mentees_email)
 
     # Mentors and mentees rank their top 3 preferences
     # Assume that every mentor or mentee is part of someone's top 3
@@ -15,14 +11,26 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv,
     mentee_preferences = parse_preferences(mentee_preferences_csv)
     check_mentors_mentees(mentor_preferences, mentee_preferences)
 
-    mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
+    #creates lists of email/grade levels
+    if (mentors_email):
+        mentor_info = parse_emails(mentors_email)
+        check_matching_email(mentor_preferences.keys(), mentor_info)
+    else:
+        print("No mentor emails found")
+        mentor_info = None
+    
+    if (mentees_email):
+        mentee_info = parse_emails(mentees_email)
+        check_matching_email(mentee_preferences.keys(), mentee_info)
+    else:
+        print("No mentee emails found")
+        mentee_info = None
 
-    #checks grade level
-    check_grade(mentor_mentee_list, mentor_info, mentee_info)
+    mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor, mentor_info, mentee_info)
   
     report_results(mentor_mentee_list, lingering_mentees, mentor_info, mentee_info)
 
-def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
+def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor, mentor_info=None, mentee_info=None):
 
     # Some useful information
     mentors = mentor_preferences.keys()
@@ -60,6 +68,8 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
             else:
                 # Propose to said mentor
                 mentor_to_propose_to = mentee_preferences[mentee][proposal_index]
+                if (mentor_info and mentee_info):
+                    check_grade(mentor_info, mentee_info, mentor_to_propose_to, mentee)
                 mentor_mentee_list[mentor_to_propose_to].add(mentee)
                 mentee_proposal_index[mentee] += 1
 
@@ -101,17 +111,19 @@ def report_results(mentor_mentee_list, lingering_mentees, mentor_emails, mentee_
         result = [mentor]
         result.extend(mentor_mentee_list[mentor])
         results.append(result)
-        result = [mentor_emails[mentor][0]]
-        for mentee in mentor_mentee_list[mentor]:
-            result.extend([mentee_emails[mentee][0]])
-        results.append(result)
+        if mentor_emails:
+            result = [mentor_emails[mentor][0]]
+            if mentee_emails:
+                for mentee in mentor_mentee_list[mentor]:
+                    result.extend([mentee_emails[mentee][0]])
+            results.append(result)
 
-    with open('sp2021_anon/results.csv', 'w') as file:
+    with open('sample_data/ashley_results.csv', 'w') as file:
         writer = csv.writer(file)
         writer.writerow(["Mentor", "Mentee 1", "Mentee 2", "Mentee 3"])
         writer.writerows(results)
 
-    with open('sp2021_anon/lingering.csv', 'w') as file:
+    with open('sample_data/ashley_lingering.csv', 'w') as file:
         writer = csv.writer(file)
         writer.writerow(["Lingering Mentees"])
         writer.writerows(zip(lingering_mentees))

@@ -55,7 +55,7 @@ def check_mentors_mentees(mentor_preferences, mentee_preferences):
 def parse_emails(csv_path):
     df = pd.read_csv(csv_path, sep=',')
     contacts = {}
-    for i in range(1, len(df)):
+    for i in range(0, len(df)):
         info = []
         for j in range(1, len(df.columns)):
             info.append(df.iloc[i][j])
@@ -63,8 +63,11 @@ def parse_emails(csv_path):
     return contacts
 
 #makes sure mentees are in a lower grade than their mentors
-def check_grade(mentor_mentee_list, mentor_info, mentee_info):
-    for mentor in mentor_mentee_list:
-        for mentee in mentor:
-            assert mentor_info[mentor][1] > mentee_info[mentee][1], "Mentor" + mentor + " is not older than " + mentee
+def check_grade(mentor_info, mentee_info, mentor, mentee):
+    assert mentor_info[mentor][1] > mentee_info[mentee][1], "Mentor " + mentor + " is not older than " + mentee
+
+#make sure each mentor/mentee has a corresponding email
+def check_matching_email(people, emails):
+    for i in people:
+        assert i in emails, i + " does not have an email"
                 
