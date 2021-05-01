@@ -13,11 +13,11 @@ def sort(mentee_preferences_csv, mentor_preferences_csv, mentees_per_mentor_csv,
 
 	mentee_do_nots = parse_preferences(mentee_do_not_csv)
 
-	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor)
+	mentor_mentee_list, lingering_mentees = run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots)
   
-	report_results(mentor_mentee_list, lingering_mentees)
+	report_results(mentor_mentee_list, lingering_mentees, mentor_preferences, mentee_preferences)
 
-def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
+def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor, mentee_do_nots):
 
 	# Some useful information
 	mentors = mentor_preferences.keys()
@@ -56,10 +56,11 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 				# Propose to said mentor
 				mentor_to_propose_to = mentee_preferences[mentee][proposal_index]
 				found = False
-				for do_not_pair in mentee_do_nots[mentor_to_propose_to]:
-					if (mentee == do_not_pair):
-						found = True
-				if (!found):
+				if mentor_to_propose_to in mentee_do_nots:
+					for do_not_pair in mentee_do_nots[mentor_to_propose_to]:
+						if (mentee == do_not_pair):
+							found = True
+				if (not found):
 					mentor_mentee_list[mentor_to_propose_to].add(mentee)
 					mentee_proposal_index[mentee] += 1
 
@@ -92,22 +93,52 @@ def run_sort_alg(mentor_preferences, mentee_preferences, mentees_per_mentor):
 						# Mentees that didn't make the cut will propose again
 						rejected_mentees.add(extra_mentee)
 				mentor_mentee_list[mentor] = mentees_to_keep
-
 	return mentor_mentee_list, lingering_mentees
 
-def report_results(mentor_mentee_list, lingering_mentees):
-	results = []
-	for mentor in mentor_mentee_list:
+def report_results(mentor_mentee_list, lingering_mentees, mentor_preferences, mentee_preferences):
+	mentors = mentor_preferences.keys()
+	mentees = mentee_preferences.keys()
+
+	mentor_results = []
+	for mentor in mentors:
 		result = [mentor]
 		result.extend(mentor_mentee_list[mentor])
-		results.append(result)
-
+		mentor_results.append(result)
+	print(mentor_results)
 	with open('sp2021_anon/results.csv', 'w') as file:
 		writer = csv.writer(file)
 		writer.writerow(["Mentor", "Mentee 1", "Mentee 2", "Mentee 3"])
-		writer.writerows(results)
+		writer.writerows(mentor_results)
+
+	print(mentor_mentee_list)
 
 	with open('sp2021_anon/lingering.csv', 'w') as file:
 		writer = csv.writer(file)
 		writer.writerow(["Lingering Mentees"])
 		writer.writerows(zip(lingering_mentees))
+
+	# how many mentors were paired with their top 1, 2, 3 choices
+	mentor_top_choice_counts = [0,0,0]
+	for mentor in mentors:
+		if (mentor_preferences[mentor][0] in mentor_mentee_list[mentor]):
+			mentor_top_choice_counts[0] += 1
+		if (mentor_preferences[mentor][1] in mentor_mentee_list[mentor]):
+			mentor_top_choice_counts[1] += 1
+		if (mentor_preferences[mentor][2] in mentor_mentee_list[mentor]):
+			mentor_top_choice_counts[2] += 1
+	
+	mentee_top_choice_counts = [0,0,0]
+	for mentee in mentees:
+		mentor = mentee_preferences[mentee][0]
+		if (mentee in mentor_mentee_list[mentor]):
+			mentee_top_choice_counts[0] += 1
+		mentor = mentee_preferences[mentee][1]
+		if (mentee in mentor_mentee_list[mentor]):
+			mentee_top_choice_counts[1] += 1
+		mentor = mentee_preferences[mentee][2]
+		if (mentee in mentor_mentee_list[mentor]):
+			mentee_top_choice_counts[2] += 1
+
+	for i in range(3):
+		print(str(mentor_top_choice_counts[i]) + " mentors are paired with their rank " + str(i+1) + " choice")
+		print(str(mentee_top_choice_counts[i]) + " mentees are paired with their rank " + str(i+1) + " choice")
