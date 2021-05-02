@@ -127,3 +127,28 @@ def report_results(mentor_mentee_list, lingering_mentees, mentor_emails, mentee_
         writer = csv.writer(file)
         writer.writerow(["Lingering Mentees"])
         writer.writerows(zip(lingering_mentees))
+
+	# how many mentors were paired with their top 1, 2, 3 choicesmentor_top_choice_counts = [0,0,0]
+    for mentor in mentors:
+    	if (mentor_preferences[mentor][0] in mentor_mentee_list[mentor]):
+        	mentor_top_choice_counts[0] += 1
+	    if (mentor_preferences[mentor][1] in mentor_mentee_list[mentor]):
+            mentor_top_choice_counts[1] += 1
+	    if (mentor_preferences[mentor][2] in mentor_mentee_list[mentor]):
+		    mentor_top_choice_counts[2] += 1
+	
+	    mentee_top_choice_counts = [0,0,0]
+	    for mentee in mentees:
+			mentor = mentee_preferences[mentee][0]
+			if (mentee in mentor_mentee_list[mentor]):
+				mentee_top_choice_counts[0] += 1
+			mentor = mentee_preferences[mentee][1]
+			if (mentee in mentor_mentee_list[mentor]):
+				mentee_top_choice_counts[1] += 1
+			mentor = mentee_preferences[mentee][2]
+			if (mentee in mentor_mentee_list[mentor]):
+				mentee_top_choice_counts[2] += 1
+
+	for i in range(3):
+		print(str(mentor_top_choice_counts[i]) + " mentors are paired with their rank " + str(i+1) + " choice")
+		print(str(mentee_top_choice_counts[i]) + " mentees are paired with their rank " + str(i+1) + " choice")
